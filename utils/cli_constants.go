@@ -14,12 +14,12 @@ var CliDefaultFlags = []cli.Flag{
 	cli.StringFlag{
 		Name:   "utils.debug",
 		Usage:  "Set the log level debug for the application.",
-		EnvVar: "DEBUG",
+		EnvVar: "DEBUG,PLUGIN_DEBUG",
 	},
 	cli.StringFlag{
 		Name:   "utils.log",
 		Usage:  "Define the log level for the application.",
-		EnvVar: "LOG_LEVEL",
+		EnvVar: "LOG_LEVEL,PLUGIN_LOG_LEVEL",
 		Value:  logrus.InfoLevel.String(),
 	},
 }

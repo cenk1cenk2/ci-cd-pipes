@@ -137,6 +137,8 @@ func TaskUpdateDockerReadme() utils.Task {
 			return err
 		}
 
+		log.Debugln(fmt.Sprintf("Response body: %s", string(body)))
+
 		b := DockerHubUpdateReadmeResponse{}
 		err = json.Unmarshal(body, &b)
 

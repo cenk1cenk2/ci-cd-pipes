@@ -159,6 +159,8 @@ func TaskUpdateDockerReadme() utils.Task {
 		err = json.Unmarshal(body, &b)
 
 		if err != nil {
+			log.Errorln(fmt.Sprintf("Response unexpected: %s", string(body)))
+
 			return err
 		}
 

@@ -34,7 +34,7 @@ steps:
         from_secret: docker_password
       dockerfile: Dockerfile
       build_args:
-        - PIPE_FILE=./update-docker-hub-readme/dist/update-docker-hub-readme-linux-amd64
+        - PIPE_FILE=./update-docker-hub-readme/dist/update-docker-hub-readme
       tag:
         - latest
     depends_on:

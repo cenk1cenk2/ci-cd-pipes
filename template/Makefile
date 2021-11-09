@@ -5,7 +5,7 @@ GOTEST=$(GOCMD) test
 GOGET=$(GOCMD) get
 GOVENDOR=$(GOCMD) mod vendor
 BINARY_FOLDER=dist
-BINARY_NAME=update-docker-hub-readme
+BINARY_NAME=template
 
 all: test build
 

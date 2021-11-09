@@ -17,7 +17,7 @@ type DockerHubUpdateReadmeResponse struct {
 	Namespace         string    `json:"namespace"`
 	RepositoryType    string    `json:"repository_type"`
 	Status            int       `json:"status"`
-	Description       string    `json:"description"`
+	Description       []string  `json:"description"`
 	IsPrivate         bool      `json:"is_private"`
 	IsAutomated       bool      `json:"is_automated"`
 	CanEdit           bool      `json:"can_edit"`

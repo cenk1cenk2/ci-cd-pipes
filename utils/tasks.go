@@ -13,10 +13,12 @@ import (
 type (
 	TaskMetadata struct {
 		Context string
+		Skip    bool
 	}
 
 	Task struct {
 		Command  *exec.Cmd
+		Task     func(Task) error
 		Metadata TaskMetadata
 	}
 
@@ -48,19 +50,34 @@ func RunAllTasks(options RunAllTasksOptions) {
 
 	if options.Sync == true {
 		for _, task := range TaskList {
-			if task.Command != nil {
-				cmd := strings.Join(task.Command.Args, " ")
-				Log.WithField("context", "RUN").
-					Infoln(fmt.Sprintf("$ %s", cmd))
-
-				err := ExecuteAndPipeToLogger(task.Command, task.Metadata)
+			if task.Task != nil {
+				err := task.Task(task)
 
 				if err != nil {
 					Log.WithField("context", "FAILED").
-						Fatalln(fmt.Sprintf("$ %s > %s", cmd, err))
-				} else {
-					Log.WithField("context", "FINISH").Infoln(fmt.Sprintf("%s", cmd))
+						Fatalln(fmt.Sprintf("$ Task > %s", err))
 				}
+			}
+
+			if task.Metadata.Skip != true {
+				if task.Command != nil {
+					cmd := strings.Join(task.Command.Args, " ")
+					Log.WithField("context", "RUN").
+						Infoln(fmt.Sprintf("$ %s", cmd))
+
+					task.Command.Args = deleteEmptyStrings(task.Command.Args)
+
+					err := ExecuteAndPipeToLogger(task.Command, task.Metadata)
+
+					if err != nil {
+						Log.WithField("context", "FAILED").
+							Fatalln(fmt.Sprintf("$ %s > %s", cmd, err))
+					} else {
+						Log.WithField("context", "FINISH").Infoln(fmt.Sprintf("%s", cmd))
+					}
+				}
+			} else {
+				Log.Warnln(fmt.Sprintf("Task skipped: %s", task.Metadata.Context))
 			}
 
 		}
@@ -125,4 +142,14 @@ func handleReader(reader *bufio.Reader, context TaskMetadata) {
 
 		log.Infoln(str)
 	}
+}
+
+func deleteEmptyStrings(s []string) []string {
+	var r []string
+	for _, str := range s {
+		if str != "" {
+			r = append(r, str)
+		}
+	}
+	return r
 }

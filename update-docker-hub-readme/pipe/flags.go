@@ -27,13 +27,6 @@ var Flags = []cli.Flag{
 		Destination: &Pipe.DockerHub.Address,
 	},
 	cli.StringFlag{
-		Name:        "docker_hub.registry",
-		Usage:       "Registry for the docker hub. There is only one!",
-		EnvVar:      "DOCKER_REGISTRY",
-		Value:       "registry-1.docker.io",
-		Destination: &Pipe.DockerHub.Registry,
-	},
-	cli.StringFlag{
 		Name:        "readme.repository",
 		Usage:       "Repository for applying the readme on.",
 		EnvVar:      "README_REPOSITORY",
@@ -46,5 +39,13 @@ var Flags = []cli.Flag{
 		EnvVar:      "README_FILE",
 		Value:       "README.md",
 		Destination: &Pipe.Readme.File,
+		Required:    false,
+	},
+	cli.StringFlag{
+		Name:        "readme.short_description",
+		Usage:       "Pass in description to send it in the request.",
+		EnvVar:      "README_DESCRIPTION",
+		Destination: &Pipe.Readme.Description,
+		Required:    false,
 	},
 }

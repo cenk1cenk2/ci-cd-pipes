@@ -25,7 +25,7 @@ var Context Ctx
 var ctx = context.Background()
 
 func TaskLoginToDockerHubRegistry() utils.Task {
-	metadata := utils.TaskMetadata{Context: "docker hub - login"}
+	metadata := utils.TaskMetadata{Context: "DockerHub - login"}
 
 	return utils.Task{Metadata: metadata, Task: func(t utils.Task) error {
 		log := utils.Log.WithField("context", t.Metadata.Context)
@@ -42,7 +42,7 @@ func TaskLoginToDockerHubRegistry() utils.Task {
 		res, err := http.Post(
 			"https://hub.docker.com/v2/users/login/",
 			JSON_REQUEST,
-			bytes.NewBuffer(login),
+			bytes.NewReader(login),
 		)
 
 		if err != nil {
@@ -70,12 +70,12 @@ func TaskLoginToDockerHubRegistry() utils.Task {
 }
 
 func TaskUpdateDockerReadme() utils.Task {
-	metadata := utils.TaskMetadata{Context: "docker hub - update readme"}
+	metadata := utils.TaskMetadata{Context: "DockerHub - update readme"}
 
 	return utils.Task{Metadata: metadata, Task: func(t utils.Task) error {
 		log := utils.Log.WithField("context", t.Metadata.Context)
 
-		log.Debugln(fmt.Sprintf("Trying to readfile %s...", Pipe.Readme.File))
+		log.Debugln(fmt.Sprintf("Trying to read file: %s", Pipe.Readme.File))
 
 		content, err := ioutil.ReadFile(Pipe.Readme.File)
 
@@ -86,14 +86,24 @@ func TaskUpdateDockerReadme() utils.Task {
 		readme := string(content)
 
 		log.Debugln(fmt.Sprintf("File read: %s", Pipe.Readme.File))
-		log.Debugln(fmt.Sprintf("Running against repository: %s", Pipe.Readme.Repository))
-		log.Debugln(fmt.Sprintf("Running against registry: %s", Pipe.DockerHub.Registry))
+		log.Debugln(
+			fmt.Sprintf(
+				"Running against repository: %s/%s",
+				Pipe.DockerHub.Address,
+				Pipe.Readme.Repository,
+			),
+		)
+
+		update := DockerHubUpdateReadmeRequest{
+			Readme: readme,
+		}
+
+		if Pipe.Readme.Description != "" {
+			update.Description = Pipe.Readme.Description
+		}
 
 		body, err := json.Marshal(
-			DockerHubUpdateReadmeRequest{
-				Registry: Pipe.DockerHub.Registry,
-				Readme:   readme,
-			},
+			update,
 		)
 
 		if err != nil {
@@ -101,8 +111,8 @@ func TaskUpdateDockerReadme() utils.Task {
 		}
 
 		req, err := http.NewRequest(http.MethodPatch,
-			fmt.Sprintf("%s/%s", Pipe.DockerHub.Address, Pipe.Readme.Repository),
-			bytes.NewBuffer(body),
+			fmt.Sprintf("%s/%s/", Pipe.DockerHub.Address, Pipe.Readme.Repository),
+			bytes.NewReader(body),
 		)
 
 		req = addAuthenticationHeadersToRequest(req)
@@ -140,6 +150,10 @@ func TaskUpdateDockerReadme() utils.Task {
 				log.Fatalln("Uploaded README does not match with current repository README file.")
 			}
 
+			if Pipe.Readme.Description != "" && b.Description != Pipe.Readme.Description {
+				log.Fatalln("Uploaded README does not match with current repository README file.")
+			}
+
 			log.Infoln(
 				fmt.Sprintf(
 					"Successfully pushed readme file to: %s -> %s/%s",
@@ -157,6 +171,16 @@ func TaskUpdateDockerReadme() utils.Task {
 				),
 			)
 		default:
+			if !b.CanEdit {
+				log.Fatalln(
+					fmt.Sprintf(
+						"Given user can not edit repository: %s/%s",
+						Pipe.DockerHub.Address,
+						Pipe.Readme.Repository,
+					),
+				)
+			}
+
 			log.Fatalln(
 				fmt.Sprintf(
 					"Pushing readme failed with code: %d",
@@ -171,8 +195,8 @@ func TaskUpdateDockerReadme() utils.Task {
 
 func addAuthenticationHeadersToRequest(req *http.Request) *http.Request {
 	req.Header.Add("User-Agent", CLI_NAME)
-	req.Header.Add("Authorization", fmt.Sprintf("JWT %s", Context.token))
 	req.Header.Add("Content-Type", JSON_REQUEST)
+	req.Header.Add("Authorization", fmt.Sprintf("JWT %s", Context.token))
 
 	return req
 }

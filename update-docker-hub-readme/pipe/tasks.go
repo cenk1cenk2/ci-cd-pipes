@@ -174,7 +174,7 @@ func TaskUpdateDockerReadme() utils.Task {
 			if !b.CanEdit {
 				log.Fatalln(
 					fmt.Sprintf(
-						"Given user can not edit repository: %s/%s",
+						"Given user credentials do not have permission to edit repository: %s/%s",
 						Pipe.DockerHub.Address,
 						Pipe.Readme.Repository,
 					),

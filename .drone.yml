@@ -1,0 +1,40 @@
+---
+name: default
+kind: pipeline
+type: docker
+trigger:
+  event:
+    - push
+  branch:
+    - master
+
+steps:
+  - name: build-update-docker-hub-readme
+    image: golang:alpine
+    working_dir: /drone/src/update-docker-hub-readme
+    commands:
+      - apk add --no-cache --no-progress make
+      - make install
+      - make -j3 build
+    when:
+      event:
+        - push
+
+  - name: publish-update-docker-hub-readme
+    image: plugins/docker
+    depends_on:
+      - build-update-docker-hub-readme
+    settings:
+      repo: cenk1cenk2/pipe-update-docker-hub-readme
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      dockerfile: Dockerfile
+      build_args:
+        - PIPE_FILE=./update-docker-hub-readme/dist/update-docker-hub-readme-linux-amd64
+      tag:
+        - latest
+    when:
+      event:
+        - push

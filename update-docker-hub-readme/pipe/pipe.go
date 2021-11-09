@@ -8,13 +8,13 @@ type (
 	DockerHub struct {
 		Username string
 		Password string
-		Registry string
 		Address  string
 	}
 
 	Readme struct {
-		Repository string
-		File       string
+		Repository  string
+		File        string
+		Description string
 	}
 
 	Plugin struct {

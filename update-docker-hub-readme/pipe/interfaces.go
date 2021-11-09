@@ -7,8 +7,8 @@ type DockerHubLoginResponse struct {
 }
 
 type DockerHubUpdateReadmeRequest struct {
-	Registry string `json:"registry"`
-	Readme   string `json:"full_description"`
+	Description string `json:"description"`
+	Readme      string `json:"full_description" validate:"required"`
 }
 
 type DockerHubUpdateReadmeResponse struct {

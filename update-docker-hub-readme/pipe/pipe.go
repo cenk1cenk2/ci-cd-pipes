@@ -28,6 +28,7 @@ var Pipe Plugin = Plugin{}
 func (p Plugin) Exec() error {
 	utils.AddTasks(
 		[]utils.Task{
+			TaskVerifyVariables(),
 			TaskLoginToDockerHubRegistry(),
 			TaskUpdateDockerReadme(),
 		},

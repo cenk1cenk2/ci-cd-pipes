@@ -2,7 +2,6 @@ package pipe
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -22,7 +21,24 @@ type Ctx struct {
 
 var Context Ctx
 
-var ctx = context.Background()
+func TaskVerifyVariables() utils.Task {
+	metadata := utils.TaskMetadata{Context: "Verify"}
+
+	return utils.Task{Metadata: metadata, Task: func(t utils.Task) error {
+		log := utils.Log.WithField("context", t.Metadata.Context)
+
+		if len(Pipe.Readme.Description) > 100 {
+			log.Fatalln(
+				fmt.Sprintf(
+					"Readme short description can only be 100 characters long while you have: %d",
+					len(Pipe.Readme.Description),
+				),
+			)
+		}
+
+		return nil
+	}}
+}
 
 func TaskLoginToDockerHubRegistry() utils.Task {
 	metadata := utils.TaskMetadata{Context: "DockerHub - login"}

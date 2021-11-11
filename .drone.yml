@@ -20,7 +20,16 @@ steps:
     working_dir: /drone/src/update-docker-hub-readme
     commands:
       - apk add --no-cache --no-progress make
-      - make -j3 build
+      - make -j4 build
+    depends_on:
+      - install
+
+  - name: build-markdown-toc
+    image: golang:alpine
+    working_dir: /drone/src/markdown-toc
+    commands:
+      - apk add --no-cache --no-progress make
+      - make -j4 build
     depends_on:
       - install
 
@@ -39,3 +48,17 @@ steps:
         - latest
     depends_on:
       - build-update-docker-hub-readme
+
+  - name: publish-markdown-toc
+    image: plugins/docker
+    settings:
+      repo: cenk1cenk2/pipe-markdown-toc
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      dockerfile: ./markdown-toc/Dockerfile
+      tag:
+        - latest
+    depends_on:
+      - build-markdown-toc

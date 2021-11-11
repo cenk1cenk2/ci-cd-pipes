@@ -48,44 +48,45 @@ func RunAllTasks(options RunAllTasksOptions) {
 		Log.WithField("context", "COMMAND").Fatalln("Task list is empty!")
 	}
 
-	if options.Sync == true {
-		for _, task := range TaskList {
-			if task.Task != nil {
-				err := task.Task(task)
-
-				if err != nil {
-					Log.WithField("context", "FAILED").
-						Fatalln(fmt.Sprintf("$ Task > %s", err))
-				}
-			}
-
-			if task.Metadata.Skip != true {
-				if task.Command != nil {
-					cmd := strings.Join(task.Command.Args, " ")
-					Log.WithField("context", "RUN").
-						Infoln(fmt.Sprintf("$ %s", cmd))
-
-					task.Command.Args = deleteEmptyStrings(task.Command.Args)
-
-					err := ExecuteAndPipeToLogger(task.Command, task.Metadata)
+	for len(TaskList) != 0 {
+		if options.Sync == true {
+			for _, task := range TaskList {
+				if task.Task != nil {
+					err := task.Task(task)
 
 					if err != nil {
 						Log.WithField("context", "FAILED").
-							Fatalln(fmt.Sprintf("$ %s > %s", cmd, err))
-					} else {
-						Log.WithField("context", "FINISH").Infoln(fmt.Sprintf("%s", cmd))
+							Fatalln(fmt.Sprintf("$ Task > %s", err))
 					}
 				}
-			} else {
-				Log.Warnln(fmt.Sprintf("Task skipped: %s", task.Metadata.Context))
+
+				if task.Metadata.Skip != true {
+					if task.Command != nil {
+						cmd := strings.Join(task.Command.Args, " ")
+						Log.WithField("context", "RUN").
+							Infoln(fmt.Sprintf("$ %s", cmd))
+
+						task.Command.Args = deleteEmptyStrings(task.Command.Args)
+
+						err := ExecuteAndPipeToLogger(task.Command, task.Metadata)
+
+						if err != nil {
+							Log.WithField("context", "FAILED").
+								Fatalln(fmt.Sprintf("$ %s > %s", cmd, err))
+						} else {
+							Log.WithField("context", "FINISH").Infoln(fmt.Sprintf("%s", cmd))
+						}
+					}
+				} else {
+					Log.Warnln(fmt.Sprintf("Task skipped: %s", task.Metadata.Context))
+				}
+
+				TaskList = TaskList[1:]
 			}
-
+		} else {
+			Log.Fatalln("Not implemented yet!")
 		}
-	} else {
-		Log.Fatalln("Not implemented yet!")
 	}
-
-	TaskList = []Task{}
 }
 
 func ExecuteAndPipeToLogger(cmd *exec.Cmd, context TaskMetadata) error {
@@ -108,7 +109,7 @@ func ExecuteAndPipeToLogger(cmd *exec.Cmd, context TaskMetadata) error {
 	stderrReader := bufio.NewReader(stderr)
 
 	if err := cmd.Start(); err != nil {
-		Log.Fatalln("Failed starting command: ", err)
+		Log.Fatalln("Command failed: ", err)
 	}
 
 	go handleReader(stdoutReader, context)

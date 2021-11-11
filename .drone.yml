@@ -58,6 +58,7 @@ steps:
       password:
         from_secret: docker_password
       context: ./markdown-toc/.
+      dockerfile: ./markdown-toc/Dockerfile
       tag:
         - latest
     depends_on:

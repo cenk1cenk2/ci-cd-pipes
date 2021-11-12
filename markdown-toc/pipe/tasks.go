@@ -35,7 +35,7 @@ func TaskFindMarkdownFiles() utils.Task {
 
 		matches := []string{}
 
-		for _, v := range Pipe.Markdown.Patterns {
+		for _, v := range Pipe.Markdown.Patterns.Value() {
 			match, err := glob.Glob(fs, v)
 
 			if err != nil {

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 
 	pipe "github.com/cenk1cenk2/ci-cd-pipes/update-docker-hub-readme/pipe"
 	utils "github.com/cenk1cenk2/ci-cd-pipes/utils"

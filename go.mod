@@ -7,7 +7,7 @@ require (
 	github.com/docker/docker v20.10.10+incompatible
 	github.com/joho/godotenv v1.4.0
 	github.com/sirupsen/logrus v1.8.1
-	github.com/urfave/cli v1.22.5
+	github.com/urfave/cli/v2 v2.3.0
 )
 
 require (

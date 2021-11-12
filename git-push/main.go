@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/urfave/cli/v2"
 
-	pipe "github.com/cenk1cenk2/ci-cd-pipes/markdown-toc/pipe"
+	pipe "github.com/cenk1cenk2/ci-cd-pipes/git-push/pipe"
 	utils "github.com/cenk1cenk2/ci-cd-pipes/utils"
 )
 

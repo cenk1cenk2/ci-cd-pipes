@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 
-	pipe "github.com/cenk1cenk2/ci-cd-pipes/template/pipe"
+	pipe "github.com/cenk1cenk2/ci-cd-pipes/_template/pipe"
 	utils "github.com/cenk1cenk2/ci-cd-pipes/utils"
 )
 

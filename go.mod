@@ -35,5 +35,5 @@ require (
 	github.com/antonfisher/nested-logrus-formatter v1.3.1
 	github.com/cpuguy83/go-md2man/v2 v2.0.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
-	golang.org/x/sys v0.0.0-20211109184856-51b60fd695b3 // indirect
+	golang.org/x/sys v0.0.0-20211112164355-7580c6e521dc // indirect
 )

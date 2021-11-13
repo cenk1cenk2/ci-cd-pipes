@@ -68,12 +68,6 @@ var Flags = []cli.Flag{
 		EnvVars:     []string{"PLUGIN_LOCAL_BRANCH", "GIT_PUSH_LOCAL_BRANCH"},
 		Destination: &Pipe.Config.LocalBranch,
 	},
-	&cli.StringFlag{
-		Name:        "git.repo.path",
-		Usage:       "path to git repo",
-		EnvVars:     []string{"PLUGIN_PATH"},
-		Destination: &Pipe.Config.Path,
-	},
 	&cli.BoolFlag{
 		Name:        "git.force",
 		Usage:       "force push to remote",

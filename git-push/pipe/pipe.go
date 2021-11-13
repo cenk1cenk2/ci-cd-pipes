@@ -26,7 +26,6 @@ type (
 		RemoteName    string
 		Branch        string
 		LocalBranch   string
-		Path          string
 		Force         bool
 		FollowTags    bool
 		SkipVerify    bool

@@ -3,6 +3,7 @@ module github.com/cenk1cenk2/ci-cd-pipes
 go 1.17
 
 require (
+	github.com/appleboy/drone-git-push v0.2.1
 	github.com/bmatcuk/doublestar/v4 v4.0.2
 	github.com/docker/docker v20.10.10+incompatible
 	github.com/joho/godotenv v1.4.0
@@ -35,5 +36,5 @@ require (
 	github.com/antonfisher/nested-logrus-formatter v1.3.1
 	github.com/cpuguy83/go-md2man/v2 v2.0.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
-	golang.org/x/sys v0.0.0-20211112164355-7580c6e521dc // indirect
+	golang.org/x/sys v0.0.0-20211112193437-faf0a1b62c6b // indirect
 )

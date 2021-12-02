@@ -16,14 +16,18 @@ type (
 		Skip    bool
 	}
 
+	TaskFunc func(Task) error
+	Command  *exec.Cmd
+
 	Task struct {
-		Command  *exec.Cmd
-		Task     func(Task) error
+		Command  Command
+		Commands []Command
+		Task     TaskFunc
+		Tasks    []TaskFunc
 		Metadata TaskMetadata
 	}
 
 	RunAllTasksOptions struct {
-		Sync bool
 	}
 )
 
@@ -41,7 +45,7 @@ func AddTasks(commands []Task) []Task {
 	return TaskList
 }
 
-var DefaultRunAllTasksOptions = RunAllTasksOptions{Sync: true}
+var DefaultRunAllTasksOptions = RunAllTasksOptions{}
 
 func RunAllTasks(options RunAllTasksOptions) {
 	if len(TaskList) == 0 {
@@ -49,42 +53,63 @@ func RunAllTasks(options RunAllTasksOptions) {
 	}
 
 	for len(TaskList) != 0 {
-		if options.Sync == true {
-			for _, task := range TaskList {
+		for _, task := range TaskList {
+			if task.Metadata.Skip != true {
+				if task.Tasks == nil {
+					task.Tasks = []TaskFunc{}
+				}
+
 				if task.Task != nil {
-					err := task.Task(task)
-
-					if err != nil {
-						Log.WithField("context", "FAILED").
-							Fatalln(fmt.Sprintf("$ Task > %s", err))
-					}
+					task.Tasks = append(task.Tasks, task.Task)
 				}
 
-				if task.Metadata.Skip != true {
-					if task.Command != nil {
-						cmd := strings.Join(task.Command.Args, " ")
-						Log.WithField("context", "RUN").
-							Infoln(fmt.Sprintf("$ %s", cmd))
+				runTasks(task, task.Tasks)
 
-						task.Command.Args = deleteEmptyStrings(task.Command.Args)
-
-						err := ExecuteAndPipeToLogger(task.Command, task.Metadata)
-
-						if err != nil {
-							Log.WithField("context", "FAILED").
-								Fatalln(fmt.Sprintf("$ %s > %s", cmd, err))
-						} else {
-							Log.WithField("context", "FINISH").Infoln(fmt.Sprintf("%s", cmd))
-						}
-					}
-				} else {
-					Log.Warnln(fmt.Sprintf("Task skipped: %s", task.Metadata.Context))
+				if task.Commands == nil {
+					task.Commands = []Command{}
 				}
 
-				TaskList = TaskList[1:]
+				if task.Command != nil {
+					task.Commands = append(task.Commands, task.Command)
+				}
+
+				runCommands(task, task.Commands)
+			} else {
+				Log.Warnln(fmt.Sprintf("Task skipped: %s", task.Metadata.Context))
 			}
+
+			TaskList = TaskList[1:]
+		}
+	}
+}
+
+func runTasks(task Task, taskFuncs []TaskFunc) {
+	for _, taskFunc := range taskFuncs {
+		err := taskFunc(task)
+
+		if err != nil {
+			Log.WithField("context", "FAILED").
+				Fatalln(fmt.Sprintf("$ Task > %s", err))
+		}
+	}
+}
+
+func runCommands(task Task, commands []Command) {
+	for _, command := range commands {
+		cmd := strings.Join(command.Args, " ")
+
+		Log.WithField("context", "RUN").
+			Infoln(fmt.Sprintf("$ %s", cmd))
+
+		command.Args = deleteEmptyStrings(command.Args)
+
+		err := ExecuteAndPipeToLogger(command, task.Metadata)
+
+		if err != nil {
+			Log.WithField("context", "FAILED").
+				Fatalln(fmt.Sprintf("$ %s > %s", cmd, err))
 		} else {
-			Log.Fatalln("Not implemented yet!")
+			Log.WithField("context", "FINISH").Infoln(fmt.Sprintf("%s", cmd))
 		}
 	}
 }

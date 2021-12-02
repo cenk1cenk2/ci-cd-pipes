@@ -8,3 +8,7 @@ GOVENDOR=$(GOCMD) mod vendor
 
 install:
 	$(GOVENDOR)
+
+update:
+	$(GOGET) -u all
+	$(GOCMD) mod tidy

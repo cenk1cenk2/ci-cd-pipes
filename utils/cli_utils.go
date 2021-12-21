@@ -45,24 +45,10 @@ func CliRun(app *cli.App) {
 	}
 }
 
-type CliCreateArgs struct {
-	Name        string
-	Version     string
-	Description string
-	Run         func(c *cli.Context) error
-	Flags       []cli.Flag
-}
-
-func CliCreate(options CliCreateArgs) {
+func CliCreate(options *cli.App) {
 	CliLoadEnvironment()
 
-	app := cli.NewApp()
-	app.Name = options.Name
-	app.Description = options.Description
-	app.Action = options.Run
-	app.Version = options.Version
-	app.Flags = append(CliDefaultFlags, options.Flags...)
-	app.Before = CliBeforeFunction
+	app := options
 
 	CliRun(app)
 }

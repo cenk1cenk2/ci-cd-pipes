@@ -21,5 +21,11 @@ func TaskVerifyVariables() utils.Task {
 func TaskGitConfiguration() utils.Task {
 	metadata := utils.TaskMetadata{Context: "Git Configuration"}
 
-	return utils.Task{Metadata: metadata, Command: base.GlobalUser(Pipe.Commit.Author.Name)}
+	return utils.Task{
+		Metadata: metadata,
+		Commands: []utils.Command{
+			base.GlobalUser(Pipe.Commit.Author.Email),
+			base.GlobalName(Pipe.Commit.Author.Name),
+		},
+	}
 }

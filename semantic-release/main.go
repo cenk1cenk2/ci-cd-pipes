@@ -9,10 +9,10 @@ import (
 
 func main() {
 	utils.CliCreate(
-		utils.CliCreateArgs{
+		&cli.App{
 			Name:    pipe.CLI_NAME,
 			Version: pipe.VERSION,
-			Run:     run,
+			Action:  run,
 			Flags:   pipe.Flags,
 		},
 	)

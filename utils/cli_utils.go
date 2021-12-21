@@ -17,6 +17,8 @@ func CliLoadEnvironment() {
 }
 
 func CliBeforeFunction(c *cli.Context) error {
+	CliLoadEnvironment()
+
 	level, err := logrus.ParseLevel(c.String("utils.log"))
 
 	if err != nil {
@@ -45,10 +47,10 @@ func CliRun(app *cli.App) {
 	}
 }
 
-func CliCreate(options *cli.App) {
-	CliLoadEnvironment()
+func CliCreate(app *cli.App) {
+	app.Flags = append(CliDefaultFlags, app.Flags...)
 
-	app := options
+	app.Before = CliBeforeFunction
 
 	CliRun(app)
 }

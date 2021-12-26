@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"io"
 	"os/exec"
 	"strings"
 	"syscall"
@@ -154,7 +153,6 @@ func CreateCommandReaders(cmd *exec.Cmd) (*bufio.Reader, *bufio.Reader, error) {
 		return nil, nil, errors.New(fmt.Sprintf("Failed creating command stdout pipe: %s", err))
 	}
 
-	defer stdout.Close()
 	stdoutReader := bufio.NewReader(stdout)
 
 	stderr, err := cmd.StderrPipe()
@@ -163,8 +161,10 @@ func CreateCommandReaders(cmd *exec.Cmd) (*bufio.Reader, *bufio.Reader, error) {
 		return nil, nil, errors.New(fmt.Sprintf("Failed creating command stderr pipe: %s", err))
 	}
 
-	defer stderr.Close()
 	stderrReader := bufio.NewReader(stderr)
+
+	defer stdout.Close()
+	defer stderr.Close()
 
 	return stdoutReader, stderrReader, nil
 }
@@ -179,12 +179,8 @@ func HandleOutputStreamReader(reader *bufio.Reader, context TaskMetadata, level 
 	for {
 		str, err := reader.ReadString('\n')
 
-		if err == io.EOF {
-			break
-		}
-
 		if err != nil {
-			Log.Debugln(fmt.Sprintf("Error while reading stream. %s", err))
+			break
 		}
 
 		log.Logln(level, str)

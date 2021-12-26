@@ -102,7 +102,7 @@ func runCommands(task *Task, commands []Command) {
 		Log.WithField("context", "RUN").
 			Infoln(fmt.Sprintf("$ %s", cmd))
 
-		command.Args = deleteEmptyStrings(command.Args)
+		command.Args = DeleteEmptyStringsFromSlice(command.Args)
 
 		err := ExecuteAndPipeToLogger(command, task.Metadata)
 
@@ -181,7 +181,7 @@ func HandleOutputStreamReader(reader *bufio.Reader, context TaskMetadata) {
 	}
 }
 
-func deleteEmptyStrings(s []string) []string {
+func DeleteEmptyStringsFromSlice(s []string) []string {
 	var r []string
 	for _, str := range s {
 		if str != "" {

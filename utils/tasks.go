@@ -126,8 +126,8 @@ func ExecuteAndPipeToLogger(cmd *exec.Cmd, context TaskMetadata) error {
 		Log.Fatalln("Command failed: ", err)
 	}
 
-	go handleReader(stdout, context)
-	go handleReader(stderr, context)
+	go HandleOutputStreamReader(stdout, context)
+	go HandleOutputStreamReader(stderr, context)
 
 	if err := cmd.Wait(); err != nil {
 		if exiterr, ok := err.(*exec.ExitError); ok {
@@ -163,7 +163,7 @@ func CreateCommandReaders(cmd *exec.Cmd) (*bufio.Reader, *bufio.Reader, error) {
 	return stdoutReader, stderrReader, nil
 }
 
-func handleReader(reader *bufio.Reader, context TaskMetadata) {
+func HandleOutputStreamReader(reader *bufio.Reader, context TaskMetadata) {
 	var log *logrus.Entry = Log.WithFields(logrus.Fields{})
 
 	if context.Context != "" {

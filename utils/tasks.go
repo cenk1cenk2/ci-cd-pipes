@@ -184,7 +184,7 @@ func HandleOutputStreamReader(reader *bufio.Reader, context TaskMetadata, level 
 		}
 
 		if err != nil {
-			Log.Fatalln(fmt.Sprintf("Error while reading stream. %s", err))
+			Log.Debugln(fmt.Sprintf("Error while reading stream. %s", err))
 		}
 
 		log.Logln(level, str)

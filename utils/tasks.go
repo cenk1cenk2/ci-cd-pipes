@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"io"
 	"os/exec"
 	"strings"
 	"syscall"
@@ -116,21 +117,22 @@ func runCommands(task *Task, commands []Command) {
 }
 
 func ExecuteAndPipeToLogger(cmd *exec.Cmd, context TaskMetadata) error {
-	stdout, stderr, err := CreateCommandReaders(cmd)
+	stdout, stdoutReader, stderr, stderrReader, err := CreateCommandReaders(cmd)
 
 	if err != nil {
 		Log.Fatalln(err)
 	}
+
+	defer stdout.Close()
+	defer stderr.Close()
 
 	if err := cmd.Start(); err != nil {
 		Log.WithField("context", "FAILED").
 			Fatalln(fmt.Sprintf("Can not start the command: %s", cmd))
 	}
 
-	go func() {
-		go HandleOutputStreamReader(stdout, context, logrus.InfoLevel)
-		go HandleOutputStreamReader(stderr, context, logrus.WarnLevel)
-	}()
+	go HandleOutputStreamReader(stdoutReader, context, logrus.InfoLevel)
+	go HandleOutputStreamReader(stderrReader, context, logrus.WarnLevel)
 
 	if err := cmd.Wait(); err != nil {
 		if exiterr, ok := err.(*exec.ExitError); ok {
@@ -140,17 +142,21 @@ func ExecuteAndPipeToLogger(cmd *exec.Cmd, context TaskMetadata) error {
 			}
 		}
 
-		// return err
+		return err
 	}
 
 	return nil
 }
 
-func CreateCommandReaders(cmd *exec.Cmd) (*bufio.Reader, *bufio.Reader, error) {
+func CreateCommandReaders(
+	cmd *exec.Cmd,
+) (io.ReadCloser, *bufio.Reader, io.ReadCloser, *bufio.Reader, error) {
 	stdout, err := cmd.StdoutPipe()
 
 	if err != nil {
-		return nil, nil, errors.New(fmt.Sprintf("Failed creating command stdout pipe: %s", err))
+		return nil, nil, nil, nil, errors.New(
+			fmt.Sprintf("Failed creating command stdout pipe: %s", err),
+		)
 	}
 
 	stdoutReader := bufio.NewReader(stdout)
@@ -158,15 +164,14 @@ func CreateCommandReaders(cmd *exec.Cmd) (*bufio.Reader, *bufio.Reader, error) {
 	stderr, err := cmd.StderrPipe()
 
 	if err != nil {
-		return nil, nil, errors.New(fmt.Sprintf("Failed creating command stderr pipe: %s", err))
+		return nil, nil, nil, nil, errors.New(
+			fmt.Sprintf("Failed creating command stderr pipe: %s", err),
+		)
 	}
 
 	stderrReader := bufio.NewReader(stderr)
 
-	defer stdout.Close()
-	defer stderr.Close()
-
-	return stdoutReader, stderrReader, nil
+	return stdout, stdoutReader, stderr, stderrReader, nil
 }
 
 func HandleOutputStreamReader(reader *bufio.Reader, context TaskMetadata, level logrus.Level) {

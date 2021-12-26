@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os/exec"
 	"strings"
@@ -115,30 +116,18 @@ func runCommands(task *Task, commands []Command) {
 }
 
 func ExecuteAndPipeToLogger(cmd *exec.Cmd, context TaskMetadata) error {
-	stdout, err := cmd.StdoutPipe()
+	stdout, stderr, err := CreateCommandReaders(cmd)
 
 	if err != nil {
-		Log.Fatalln("Failed creating command stdout pipe: ", err)
+		Log.Fatalln(err)
 	}
-
-	defer stdout.Close()
-	stdoutReader := bufio.NewReader(stdout)
-
-	stderr, err := cmd.StderrPipe()
-
-	if err != nil {
-		Log.Fatalln("Failed creating command stderr pipe: ", err)
-	}
-
-	defer stderr.Close()
-	stderrReader := bufio.NewReader(stderr)
 
 	if err := cmd.Start(); err != nil {
 		Log.Fatalln("Command failed: ", err)
 	}
 
-	go handleReader(stdoutReader, context)
-	go handleReader(stderrReader, context)
+	go handleReader(stdout, context)
+	go handleReader(stderr, context)
 
 	if err := cmd.Wait(); err != nil {
 		if exiterr, ok := err.(*exec.ExitError); ok {
@@ -150,6 +139,28 @@ func ExecuteAndPipeToLogger(cmd *exec.Cmd, context TaskMetadata) error {
 	}
 
 	return nil
+}
+
+func CreateCommandReaders(cmd *exec.Cmd) (*bufio.Reader, *bufio.Reader, error) {
+	stdout, err := cmd.StdoutPipe()
+
+	if err != nil {
+		return nil, nil, errors.New(fmt.Sprintf("Failed creating command stdout pipe: %s", err))
+	}
+
+	defer stdout.Close()
+	stdoutReader := bufio.NewReader(stdout)
+
+	stderr, err := cmd.StderrPipe()
+
+	if err != nil {
+		return nil, nil, errors.New(fmt.Sprintf("Failed creating command stderr pipe: %s", err))
+	}
+
+	defer stderr.Close()
+	stderrReader := bufio.NewReader(stderr)
+
+	return stdoutReader, stderrReader, nil
 }
 
 func handleReader(reader *bufio.Reader, context TaskMetadata) {

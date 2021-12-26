@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"io"
 	"os/exec"
 	"strings"
 	"syscall"
@@ -108,7 +109,7 @@ func runCommands(task *Task, commands []Command) {
 
 		if err != nil {
 			Log.WithField("context", "FAILED").
-				Fatalln(fmt.Sprintf("$ %s > %s", cmd, err))
+				Fatalln(fmt.Sprintf("$ %s > %s", cmd, err.Error()))
 		} else {
 			Log.WithField("context", "FINISH").Infoln(fmt.Sprintf("%s", cmd))
 		}
@@ -123,18 +124,23 @@ func ExecuteAndPipeToLogger(cmd *exec.Cmd, context TaskMetadata) error {
 	}
 
 	if err := cmd.Start(); err != nil {
-		Log.Fatalln("Command failed: ", err)
+		Log.WithField("context", "FAILED").
+			Fatalln(fmt.Sprintf("Can not start the command: %s", cmd))
 	}
 
-	go HandleOutputStreamReader(stdout, context)
-	go HandleOutputStreamReader(stderr, context)
+	go func() {
+		go HandleOutputStreamReader(stdout, context, logrus.InfoLevel)
+		go HandleOutputStreamReader(stderr, context, logrus.WarnLevel)
+	}()
 
 	if err := cmd.Wait(); err != nil {
 		if exiterr, ok := err.(*exec.ExitError); ok {
 			if status, ok := exiterr.Sys().(syscall.WaitStatus); ok {
-				Log.Debugln("Exit Status: ", status.ExitStatus())
+				Log.WithField("context", "EXIT").
+					Debugln(fmt.Sprintf("Exit Status: %v", status.ExitStatus()))
 			}
 		}
+
 		return err
 	}
 
@@ -163,7 +169,7 @@ func CreateCommandReaders(cmd *exec.Cmd) (*bufio.Reader, *bufio.Reader, error) {
 	return stdoutReader, stderrReader, nil
 }
 
-func HandleOutputStreamReader(reader *bufio.Reader, context TaskMetadata) {
+func HandleOutputStreamReader(reader *bufio.Reader, context TaskMetadata, level logrus.Level) {
 	var log *logrus.Entry = Log.WithFields(logrus.Fields{})
 
 	if context.Context != "" {
@@ -173,11 +179,15 @@ func HandleOutputStreamReader(reader *bufio.Reader, context TaskMetadata) {
 	for {
 		str, err := reader.ReadString('\n')
 
-		if err != nil {
+		if err == io.EOF {
 			break
 		}
 
-		log.Infoln(str)
+		if err != nil {
+			Log.Fatalln(fmt.Sprintf("Error while reading stream. %s", err))
+		}
+
+		log.Logln(level, str)
 	}
 }
 

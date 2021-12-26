@@ -1,55 +1,39 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
-	"sync"
 
 	"github.com/creasty/defaults"
 	validator "github.com/go-playground/validator/v10"
 )
 
-func ValidateAndSetDefaults(metadata TaskMetadata, s ...interface{}) {
+func ValidateAndSetDefaults(metadata TaskMetadata, s interface{}) error {
 	log := Log.WithField("context", metadata.Context)
 
-	var wg sync.WaitGroup
-	wg.Add(len(s))
+	pointer := &s
 
-	var validationError bool
-
-	for i, v := range s {
-		go func(i int, v interface{}) {
-			defer wg.Done()
-
-			pointer := &s[i]
-
-			if err := defaults.Set(pointer); err != nil {
-				log.Fatalln(fmt.Sprintf("Can not set defaults: %s", err))
-			}
-
-			validate := validator.New()
-
-			err := validate.Struct(v)
-
-			if err != nil {
-				for _, err := range err.(validator.ValidationErrors) {
-					error := fmt.Sprintf(
-						"\"%s\" field failed validation: %s",
-						err.Namespace(),
-						err.Tag(),
-					)
-
-					log.Errorln(error)
-
-				}
-
-				validationError = true
-			}
-		}(i, v)
+	if err := defaults.Set(pointer); err != nil {
+		return errors.New(fmt.Sprintf("Can not set defaults: %s", err))
 	}
 
-	wg.Wait()
+	validate := validator.New()
 
-	if validationError {
-		log.Fatalln("Validation failed.")
+	err := validate.Struct(s)
+
+	if err != nil {
+		for _, err := range err.(validator.ValidationErrors) {
+			error := fmt.Sprintf(
+				"\"%s\" field failed validation: %s",
+				err.Namespace(),
+				err.Tag(),
+			)
+
+			log.Errorln(error)
+		}
+
+		return errors.New("Validation failed.")
 	}
+
+	return nil
 }

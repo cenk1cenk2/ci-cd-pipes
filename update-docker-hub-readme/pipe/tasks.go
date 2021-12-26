@@ -24,7 +24,7 @@ var Context Ctx
 func TaskVerifyVariables() utils.Task {
 	metadata := utils.TaskMetadata{Context: "Verify"}
 
-	return utils.Task{Metadata: metadata, Task: func(t utils.Task) error {
+	return utils.Task{Metadata: metadata, Task: func(t *utils.Task) error {
 		log := utils.Log.WithField("context", t.Metadata.Context)
 
 		if len(Pipe.Readme.Description) > 100 {
@@ -43,7 +43,7 @@ func TaskVerifyVariables() utils.Task {
 func TaskLoginToDockerHubRegistry() utils.Task {
 	metadata := utils.TaskMetadata{Context: "DockerHub - login"}
 
-	return utils.Task{Metadata: metadata, Task: func(t utils.Task) error {
+	return utils.Task{Metadata: metadata, Task: func(t *utils.Task) error {
 		log := utils.Log.WithField("context", t.Metadata.Context)
 
 		login, err := json.Marshal(types.AuthConfig{
@@ -88,7 +88,7 @@ func TaskLoginToDockerHubRegistry() utils.Task {
 func TaskUpdateDockerReadme() utils.Task {
 	metadata := utils.TaskMetadata{Context: "DockerHub - update readme"}
 
-	return utils.Task{Metadata: metadata, Task: func(t utils.Task) error {
+	return utils.Task{Metadata: metadata, Task: func(t *utils.Task) error {
 		log := utils.Log.WithField("context", t.Metadata.Context)
 
 		log.Debugln(fmt.Sprintf("Trying to read file: %s", Pipe.Readme.File))

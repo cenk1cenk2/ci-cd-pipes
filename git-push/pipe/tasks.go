@@ -13,7 +13,7 @@ var Context Ctx
 func TaskVerifyVariables() utils.Task {
 	metadata := utils.TaskMetadata{Context: "Verify"}
 
-	return utils.Task{Metadata: metadata, Task: func(t utils.Task) error {
+	return utils.Task{Metadata: metadata, Task: func(t *utils.Task) error {
 		return nil
 	}}
 }

@@ -16,7 +16,7 @@ type (
 		Skip    bool
 	}
 
-	TaskFunc func(Task) error
+	TaskFunc func(*Task) error
 	Command  *exec.Cmd
 
 	Task struct {
@@ -63,7 +63,7 @@ func RunAllTasks(options RunAllTasksOptions) {
 					task.Tasks = append(task.Tasks, task.Task)
 				}
 
-				runTasks(task, task.Tasks)
+				runTasks(&task, task.Tasks)
 
 				if task.Commands == nil {
 					task.Commands = []Command{}
@@ -73,7 +73,7 @@ func RunAllTasks(options RunAllTasksOptions) {
 					task.Commands = append(task.Commands, task.Command)
 				}
 
-				runCommands(task, task.Commands)
+				runCommands(&task, task.Commands)
 			} else {
 				Log.Warnln(fmt.Sprintf("Task skipped: %s", task.Metadata.Context))
 			}
@@ -83,7 +83,7 @@ func RunAllTasks(options RunAllTasksOptions) {
 	}
 }
 
-func runTasks(task Task, taskFuncs []TaskFunc) {
+func runTasks(task *Task, taskFuncs []TaskFunc) {
 	for _, taskFunc := range taskFuncs {
 		err := taskFunc(task)
 
@@ -94,7 +94,7 @@ func runTasks(task Task, taskFuncs []TaskFunc) {
 	}
 }
 
-func runCommands(task Task, commands []Command) {
+func runCommands(task *Task, commands []Command) {
 	for _, command := range commands {
 		cmd := strings.Join(command.Args, " ")
 

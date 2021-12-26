@@ -20,7 +20,7 @@ var Context Ctx
 func TaskFindMarkdownFiles() utils.Task {
 	metadata := utils.TaskMetadata{Context: "Find Files"}
 
-	return utils.Task{Metadata: metadata, Task: func(t utils.Task) error {
+	return utils.Task{Metadata: metadata, Task: func(t *utils.Task) error {
 		log := utils.Log.WithField("context", t.Metadata.Context)
 
 		cwd, err := os.Getwd()
@@ -65,7 +65,7 @@ func TaskFindMarkdownFiles() utils.Task {
 func TaskRunMarkdownToc() utils.Task {
 	metadata := utils.TaskMetadata{Context: "markdown-toc"}
 
-	return utils.Task{Metadata: metadata, Task: func(t utils.Task) error {
+	return utils.Task{Metadata: metadata, Task: func(t *utils.Task) error {
 
 		for _, match := range Context.Matches {
 			cmd := exec.Command(MARKDOWN_TOC_COMMAND, Pipe.Markdown.Arguments, "-i")

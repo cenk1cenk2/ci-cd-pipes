@@ -8,18 +8,16 @@ import (
 	validator "github.com/go-playground/validator/v10"
 )
 
-func ValidateAndSetDefaults(metadata TaskMetadata, s interface{}) error {
+func ValidateAndSetDefaults(metadata TaskMetadata, s *interface{}) error {
 	log := Log.WithField("context", metadata.Context)
 
-	pointer := &s
-
-	if err := defaults.Set(pointer); err != nil {
+	if err := defaults.Set(s); err != nil {
 		return errors.New(fmt.Sprintf("Can not set defaults: %s", err))
 	}
 
 	validate := validator.New()
 
-	err := validate.Struct(s)
+	err := validate.Struct(&s)
 
 	if err != nil {
 		for _, err := range err.(validator.ValidationErrors) {

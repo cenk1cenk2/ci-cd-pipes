@@ -140,7 +140,7 @@ func ExecuteAndPipeToLogger(cmd *exec.Cmd, context TaskMetadata) error {
 			}
 		}
 
-		return err
+		// return err
 	}
 
 	return nil

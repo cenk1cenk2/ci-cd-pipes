@@ -8,7 +8,7 @@ import (
 	validator "github.com/go-playground/validator/v10"
 )
 
-func ValidateAndSetDefaults(metadata TaskMetadata, s []interface{}) {
+func ValidateAndSetDefaults(metadata TaskMetadata, s ...interface{}) {
 	log := Log.WithField("context", metadata.Context)
 
 	var wg sync.WaitGroup

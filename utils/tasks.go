@@ -14,8 +14,10 @@ import (
 
 type (
 	TaskMetadata struct {
-		Context string
-		Skip    bool
+		Context        string
+		Skip           bool
+		StdOutLogLevel logrus.Level
+		StdErrLogLevel logrus.Level
 	}
 
 	TaskFunc func(*Task) error
@@ -56,6 +58,14 @@ func RunAllTasks(options RunAllTasksOptions) {
 
 	for len(TaskList) != 0 {
 		for _, task := range TaskList {
+			if task.Metadata.StdOutLogLevel == 0 {
+				task.Metadata.StdOutLogLevel = logrus.InfoLevel
+			}
+
+			if task.Metadata.StdErrLogLevel == 0 {
+				task.Metadata.StdErrLogLevel = logrus.WarnLevel
+			}
+
 			if task.Metadata.Skip != true {
 				if task.Tasks == nil {
 					task.Tasks = []TaskFunc{}
@@ -131,8 +141,8 @@ func ExecuteAndPipeToLogger(cmd *exec.Cmd, context TaskMetadata) error {
 			Fatalln(fmt.Sprintf("Can not start the command: %s", cmd))
 	}
 
-	go HandleOutputStreamReader(stdoutReader, context, logrus.InfoLevel)
-	go HandleOutputStreamReader(stderrReader, context, logrus.WarnLevel)
+	go HandleOutputStreamReader(stdoutReader, context, context.StdOutLogLevel)
+	go HandleOutputStreamReader(stderrReader, context, context.StdErrLogLevel)
 
 	if err := cmd.Wait(); err != nil {
 		if exiterr, ok := err.(*exec.ExitError); ok {

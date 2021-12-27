@@ -29,6 +29,7 @@ type (
 		Task     TaskFunc
 		Tasks    []TaskFunc
 		Metadata TaskMetadata
+		Log      *logrus.Entry
 	}
 
 	RunAllTasksOptions struct {
@@ -65,6 +66,8 @@ func RunAllTasks(options RunAllTasksOptions) {
 			if task.Metadata.StdErrLogLevel == 0 {
 				task.Metadata.StdErrLogLevel = logrus.WarnLevel
 			}
+
+			task.Log = Log.WithField("context", task.Metadata.Context)
 
 			if task.Metadata.Skip != true {
 				if task.Tasks == nil {

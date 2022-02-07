@@ -69,7 +69,7 @@ func RunAllTasks(options RunAllTasksOptions) {
 
 			task.Log = Log.WithField("context", task.Metadata.Context)
 
-			if task.Metadata.Skip {
+			if !task.Metadata.Skip {
 				if task.Tasks == nil {
 					task.Tasks = []TaskFunc{}
 				}

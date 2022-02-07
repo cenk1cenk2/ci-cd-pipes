@@ -18,7 +18,7 @@ func InitiateLogger(level logrus.Level) {
 	Log.SetFormatter(&nested.Formatter{
 		FieldsOrder: []string{"context"},
 		// TimestampFormat:  "[20060102-15:04:05]",
-		TimestampFormat:  "[15:04:05]",
+		TimestampFormat:  "",
 		HideKeys:         true,
 		NoColors:         false,
 		NoFieldsColors:   false,

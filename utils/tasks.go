@@ -69,7 +69,7 @@ func RunAllTasks(options RunAllTasksOptions) {
 
 			task.Log = Log.WithField("context", task.Metadata.Context)
 
-			if task.Metadata.Skip != true {
+			if task.Metadata.Skip {
 				if task.Tasks == nil {
 					task.Tasks = []TaskFunc{}
 				}
@@ -124,7 +124,7 @@ func runCommands(task *Task, commands []Command) {
 			Log.WithField("context", "FAILED").
 				Fatalln(fmt.Sprintf("$ %s > %s", cmd, err.Error()))
 		} else {
-			Log.WithField("context", "FINISH").Infoln(fmt.Sprintf("%s", cmd))
+			Log.WithField("context", "FINISH").Infoln(cmd)
 		}
 	}
 }

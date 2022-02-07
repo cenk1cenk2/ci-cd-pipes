@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"os"
 	"runtime"
 
@@ -24,12 +23,12 @@ func InitiateLogger(level logrus.Level) {
 		NoColors:         false,
 		NoFieldsColors:   false,
 		NoFieldsSpace:    false,
-		ShowFullLevel:    true,
+		ShowFullLevel:    false,
 		NoUppercaseLevel: false,
 		TrimMessages:     true,
 		CallerFirst:      true,
 		CustomCallerFormatter: func(frame *runtime.Frame) string {
-			return fmt.Sprintf("%s", frame.Func.Name())
+			return frame.Func.Name()
 		},
 	})
 

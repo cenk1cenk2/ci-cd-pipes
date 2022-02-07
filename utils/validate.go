@@ -12,7 +12,7 @@ func ValidateAndSetDefaults(metadata TaskMetadata, s interface{}) error {
 	log := Log.WithField("context", metadata.Context)
 
 	if err := defaults.Set(s); err != nil {
-		return errors.New(fmt.Sprintf("Can not set defaults: %s", err))
+		return fmt.Errorf("Can not set defaults: %s", err)
 	}
 
 	validate := validator.New()

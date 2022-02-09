@@ -2,9 +2,8 @@ package utils
 
 import (
 	"os"
-	"runtime"
 
-	nested "github.com/antonfisher/nested-logrus-formatter"
+	formatter "github.com/cenk1cenk2/ci-cd-pipes/utils/formatter"
 	"github.com/sirupsen/logrus"
 )
 
@@ -15,10 +14,9 @@ var Log = logrus.New()
 func InitiateLogger(level logrus.Level) {
 	Log.Out = os.Stdout
 
-	Log.SetFormatter(&nested.Formatter{
-		FieldsOrder: []string{"context"},
-		// TimestampFormat:  "[20060102-15:04:05]",
-		TimestampFormat:  "[15:04:05]",
+	Log.SetFormatter(&formatter.Formatter{
+		FieldsOrder:      []string{"context"},
+		TimestampFormat:  "",
 		HideKeys:         true,
 		NoColors:         false,
 		NoFieldsColors:   false,
@@ -26,10 +24,7 @@ func InitiateLogger(level logrus.Level) {
 		ShowFullLevel:    false,
 		NoUppercaseLevel: false,
 		TrimMessages:     true,
-		CallerFirst:      true,
-		CustomCallerFormatter: func(frame *runtime.Frame) string {
-			return frame.Func.Name()
-		},
+		CallerFirst:      false,
 	})
 
 	Log.SetLevel(level)

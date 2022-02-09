@@ -83,7 +83,11 @@ func (f *Formatter) Format(entry *logrus.Entry) ([]byte, error) {
 		f.LevelChars = 1
 	}
 
-	b.WriteString(" [")
+	if !f.NoFieldsSpace && timestampFormat != "" {
+		b.WriteString(" ")
+	}
+
+	b.WriteString("[")
 	if f.ShowFullLevel {
 		b.WriteString(level)
 	} else {

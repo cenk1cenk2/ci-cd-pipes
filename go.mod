@@ -7,7 +7,7 @@ require (
 	github.com/bmatcuk/doublestar/v4 v4.0.2
 	github.com/creasty/defaults v1.5.2
 	github.com/docker/docker v20.10.12+incompatible
-	github.com/go-playground/validator/v10 v10.9.0
+	github.com/go-playground/validator/v10 v10.10.1
 	github.com/joho/godotenv v1.4.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/urfave/cli/v2 v2.3.0
@@ -30,9 +30,9 @@ require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97 // indirect
+	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3 // indirect
 	golang.org/x/net v0.0.0-20211216030914-fe4d6282115f // indirect
-	golang.org/x/text v0.3.6 // indirect
+	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
 	google.golang.org/genproto v0.0.0-20211223182754-3ac035c7e7cb // indirect
 	google.golang.org/grpc v1.43.0 // indirect

@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/appleboy/drone-git-push v0.2.1
 	github.com/bmatcuk/doublestar/v4 v4.0.2
-	github.com/creasty/defaults v1.5.2
+	github.com/creasty/defaults v1.6.0
 	github.com/docker/docker v20.10.12+incompatible
 	github.com/go-playground/validator/v10 v10.9.0
 	github.com/joho/godotenv v1.4.0
